@@ -1,5 +1,7 @@
 # 使用flask 在线docker镜像打包
 
+在线下载Docker Hub镜像，打成tar包下载
+
 需要有docker环境
 
 缺少什么库就安装什么
