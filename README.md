@@ -4,8 +4,9 @@
 
 需要有docker环境
 
-缺少什么库就安装什么
 ```
+pip3 install  docker  
+pip3 install  flask
 python3 app.py
 ```
 
