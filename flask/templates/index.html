@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Docker Image Downloader</title>
+    <style>
+      body {
+        background-image: url('https://images.unsplash.com/photo-1625799493567-29143bb30cd3');
+        background-size: cover;
+        background-position: center;
+      }
+      .container {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 20px;
+      }
+    </style>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container my-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title mb-4 text-center">Download Docker Image</h1>
+              <form method="POST" action="/download" onsubmit="downloadImage(event)">
+                <div class="form-group">
+                  <label for="image-name">Image Name:</label>
+                  <input type="text" class="form-control" name="image_name" id="image-name">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Download</button>
+                <div class="progress my-3">
+                  <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+ aria-valuemax="100"></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      var isRequestInProgress = false;
+      function downloadImage(event) {
+        event.preventDefault();
+        var form = event.target;
+        if(form.image_name.value === '') {
+           alert('Please enter an image name!');
+           return;
+        }
+        if (isRequestInProgress) {
+           alert('请不要重复点击');
+           return;
+        }
+        isRequestInProgress = true;
+        var xhr = new XMLHttpRequest();
+        xhr.open(form.method, form.action, true);
+        xhr.responseType = 'blob';
+     
+        // Update progress bar when the download progress changes
+        xhr.addEventListener('progress', function(event) {
+          if (event.lengthComputable) {
+            var percentComplete = event.loaded / event.total * 100;
+            var progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = percentComplete + '%';
+            progressBar.setAttribute('aria-valuenow', percentComplete);
+            progressBar.innerText = percentComplete.toFixed(2) + '%';
+          }
+        });
+        // Download the file when it's ready
+        xhr.addEventListener('load', function(event) {
+          if (xhr.status === 200) {
+              var blob = xhr.response;
+              var fileName = form.image_name.value.replace("docker pull ","") + '.tar';
+              var link = document.createElement('a');
+              link.href = window.URL.createObjectURL(blob);
+              link.download = fileName;
+              link.click();
+              
+              // Reset progress bar when download is complete
+              var progressBar = document.getElementById('progress-bar');
+              progressBar.style.width = '0%';
+              progressBar.setAttribute('aria-valuenow', '0');
+              progressBar.innerText = '';
+              isRequestInProgress = false;
+          }
+        });
+
+        xhr.send(new FormData(form));
+      }
+    </script>
+  </body>
+</html>
